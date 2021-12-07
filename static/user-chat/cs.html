@@ -25,7 +25,7 @@
     <script>
       const socket = io({
         auth: {
-          token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMDEsInJvbGUiOiJjcyIsImlhdCI6MTYzODY2ODczMywiZXhwIjoxNjM4NjcyMzMzfQ.Lw3rijtR5onuK_fsrsiyrF7yXKb_yuC3dzrRu1pEanA"
+          token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo5OTk5OTksInJvbGUiOiJjcyIsImlhdCI6MTYzODg4NTkwOCwiZXhwIjoxNjQyODA5OTA4fQ.jnfKxpR0fxwdCg-rEqpJc1xIWNiaozEq4a0WkRGK624"
         }
       });
       var messages = document.getElementById('messages');
@@ -43,7 +43,7 @@
   socket.on('user_id', function(msg) {
     console.log("msg.userId: " + msg.userId)
     socket.userId = msg.userId;
-    console.log("socket.userId: " + socket.userId)
+    console.log("socket.userId: " + socket.userId);
   });
 
   socket.on('news', function(msg) {
@@ -53,6 +53,18 @@
     window.scrollTo(0, document.body.scrollHeight);
   });
 
+  socket.on('old_tickets', function(tickets) {
+    console.log("old_tickets: " + JSON.stringify(tickets))
+  });
+
+  socket.on('add_ticket_user', function(tickets) {
+    console.log("add_ticket_user: " + JSON.stringify(tickets))
+  });
+
+  socket.on('remove_ticket_user', function(ticket) {
+    console.log("remove_ticket_user: " + JSON.stringify(ticket))
+  });
+  
   socket.on('old_news', function(msg) {
     removeAllChildNodes(messages);
     var item = document.createElement('li');

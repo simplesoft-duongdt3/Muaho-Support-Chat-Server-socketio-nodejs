@@ -55,7 +55,9 @@ async function main() {
     console.log(`socket ${id} has joined room ${room}`);
   });
   io.of("/").adapter.on("leave-room", (room, id) => {
-    console.log(`socket ${id} has leaved room ${room}`);
+    var socketTicket = io.sockets.sockets.get(id);
+    console.log(`socket ${id} has leaved room ${room} userId ${socketTicket.userId}`);
+    io.to("room_cs").emit('remove_ticket_user', { userId: socketTicket.userId });
   });
 
   io.on('connection', async (socket) => {
@@ -64,16 +66,19 @@ async function main() {
 
     if (isCs) {
       socket.join("room_cs");
-      const ids = await io.in("open_ticket_users").allSockets();
-      var tickets = [];
-      for (const id in ids) {
-        var socket = io.sockets.sockets.get(id);
-        tickets.push({
-          userId: socket.userId,
-          userName: socket.userName,
+      const sockets = await io.in("open_ticket_users").allSockets();
+      const tickets = new Map();
+
+      for (const socketId of sockets) {
+        var socketTicket = io.sockets.sockets.get(socketId);
+        tickets.set(socketTicket.userId, {
+          id: socketTicket.userId,
+          name: socketTicket.userName,
         });
-      }
-      io.to(socket.id).emit('old_tickets', tickets)
+      }   
+      var arrayTickets = Array.from(tickets.values());
+      io.to(socket.id).emit('old_tickets', arrayTickets)
+      console.log('old_tickets ' + JSON.stringify(tickets));
     } else {
       socket.join("room_user_" + socket.userId);
 
@@ -136,20 +141,20 @@ async function main() {
 
 main();
 
-//token cs 
-//eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMDEsInJvbGUiOiJjcyIsImlhdCI6MTYzODY2ODczMywiZXhwIjoxNjM4NjcyMzMzfQ.Lw3rijtR5onuK_fsrsiyrF7yXKb_yuC3dzrRu1pEanA
-//tokenBuyer 
-//eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMDAsInJvbGUiOiJidXllciIsImlhdCI6MTYzODY2ODczMywiZXhwIjoxNjM4Njc1OTMzfQ.leC62ujxj8ikGblQ72oBbg1qBMWlpCH-Nih4oIntSBU
+// token cs 
+// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo5OTk5OTksInJvbGUiOiJjcyIsImlhdCI6MTYzODg4NTkwOCwiZXhwIjoxNjQyODA5OTA4fQ.jnfKxpR0fxwdCg-rEqpJc1xIWNiaozEq4a0WkRGK624
+// tokenBuyer
+// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo5OTk5OTgsInJvbGUiOiJidXllciIsImlhdCI6MTYzODg4NTkwOCwiZXhwIjoxNjQ2OTIxMTA4fQ.VSwq6aFH_p6XeeqKs6iy666JwyPZMxvYU2KYVMaqEiI
 
 //get token for testing
 // var tokenCs = jwt.sign({
-//   "user_id": 101, 
+//   "user_id": 999999, 
 //   "role": "cs", 
-// }, "asd*(askldmnasKL8902", { expiresIn: '1h' });
+// }, "asd*(askldmnasKL8902", { expiresIn: '1090h' });
 // var tokenBuyer = jwt.sign({
-//   "user_id": 100, 
+//   "user_id": 999998, 
 //   "role": "buyer", 
-// }, "asd*(askldmnasKL8902", { expiresIn: '2h' });
+// }, "asd*(askldmnasKL8902", { expiresIn: '2232h' });
 
 // console.log("token cs " + tokenCs + " tokenBuyer " + tokenBuyer);
 

@@ -25,7 +25,7 @@
     <script>
       const socket = io({
         auth: {
-          token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMDAsInJvbGUiOiJidXllciIsImlhdCI6MTYzODY2ODczMywiZXhwIjoxNjM4Njc1OTMzfQ.leC62ujxj8ikGblQ72oBbg1qBMWlpCH-Nih4oIntSBU"
+          token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo5OTk5OTgsInJvbGUiOiJidXllciIsImlhdCI6MTYzODg4NTkwOCwiZXhwIjoxNjQ2OTIxMTA4fQ.VSwq6aFH_p6XeeqKs6iy666JwyPZMxvYU2KYVMaqEiI"
         }
       });
       var messages = document.getElementById('messages');
@@ -40,8 +40,8 @@
     }
   });
 
-  socket.on('user_id', function(msg) {
-    socket.userId = msg.userId;
+  socket.on('connect', function() {
+    socket.emit('open_ticket', { name: "Anh Duong DT3" });
   });
 
   socket.on('news', function(msgList) {
