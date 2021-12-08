@@ -21,14 +21,14 @@
       <input id="input" autocomplete="off" /><button>Send</button>
     </form>
 
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.0/socket.io.min.js"></script>
     <script>
       const socket = io({
         auth: {
           token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo5OTk5OTksInJvbGUiOiJjcyIsImlhdCI6MTYzODg4NTkwOCwiZXhwIjoxNjQyODA5OTA4fQ.jnfKxpR0fxwdCg-rEqpJc1xIWNiaozEq4a0WkRGK624"
         }
       });
-      var messages = document.getElementById('messages');
+  var messages = document.getElementById('messages');
   var form = document.getElementById('form');
   var input = document.getElementById('input');
 

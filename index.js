@@ -72,8 +72,8 @@ async function main() {
       for (const socketId of sockets) {
         var socketTicket = io.sockets.sockets.get(socketId);
         tickets.set(socketTicket.userId, {
-          id: socketTicket.userId,
-          name: socketTicket.userName,
+          userId: socketTicket.userId,
+          userName: socketTicket.userName,
         });
       }   
       var arrayTickets = Array.from(tickets.values());
