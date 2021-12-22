@@ -63,8 +63,10 @@
     }
   }
 
-  socket.on('old_news', function(msgList) {
+  socket.on('old_news', function(old_news) {
     removeAllChildNodes(messages);
+    console.log(JSON.stringify(old_news));
+    var msgList = old_news.msgList;
     for (const msg of msgList) {
       var item = document.createElement('li');
       item.textContent = msg.msg + " senderId: " + msg.senderId + " receiverId: " + msg.receiverId + " roomId: " + msg.roomId + " sendTime: " + msg.sendTime;

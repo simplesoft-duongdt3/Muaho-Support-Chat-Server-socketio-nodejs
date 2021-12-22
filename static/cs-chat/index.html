@@ -36,8 +36,8 @@
                 <div class="friend-drawer no-gutters friend-drawer--grey">
                     <img class="profile-image" src="https://picsum.photos/100/100?id=7" alt="">
                     <div class="text">
-                        <h6>Robo Cop</h6>
-                        <p class="text-muted">Layin' down the law since like before Christ...</p>
+                        <h6 id="current_chat_name">Robo Cop</h6>
+                        <p class="text-muted">Chat something...</p>
                     </div>
                 </div>
                 <span class="settings-tray--right">
@@ -48,62 +48,15 @@
                 </div>
             </div>
             <div class="chat-panel">
-              <div class="row no-gutters">
-                <div class="col-md-3">
-                  <div class="chat-bubble chat-bubble--left">
-                    Hello dude!
-                  </div>
-                </div>
+              <div class="chat-panel" id="current_chat_panel">
               </div>
-              <div class="row no-gutters">
-                <div class="col-md-3 offset-md-9">
-                  <div class="chat-bubble chat-bubble--right">
-                    Hello dude!
-                  </div>
-                </div>
-              </div>
-              <div class="row no-gutters">
-                <div class="col-md-3 offset-md-9">
-                  <div class="chat-bubble chat-bubble--right">
-                    Hello dude!
-                  </div>
-                </div>
-              </div>
-              <div class="row no-gutters">
-                <div class="col-md-3">
-                  <div class="chat-bubble chat-bubble--left">
-                    Hello dude!
-                  </div>
-                </div>
-              </div>
-              <div class="row no-gutters">
-                <div class="col-md-3">
-                  <div class="chat-bubble chat-bubble--left">
-                    Hello dude!
-                  </div>
-                </div>
-              </div>
-              <div class="row no-gutters">
-                <div class="col-md-3">
-                  <div class="chat-bubble chat-bubble--left">
-                    Hello dude!
-                  </div>
-                </div>
-              </div>
-              <div class="row no-gutters">
-                <div class="col-md-3 offset-md-9">
-                  <div class="chat-bubble chat-bubble--right">
-                    Hello dude!
-                  </div>
-                </div>
-              </div>
+              
               <div class="row">
                 <div class="col-12">
                   <div class="chat-box-tray">
                     <i class="material-icons">sentiment_very_satisfied</i>
-                    <input type="text" placeholder="Type your message here...">
-                    <i class="material-icons">mic</i>
-                    <i class="material-icons">send</i>
+                    <input id="inputChat" placeholder="Type your message here..." autocomplete="off" />
+                    <i class="material-icons" onclick="sendChat()">send</i>
                   </div>
                 </div>
               </div>
@@ -113,20 +66,74 @@
       </div>
 
       <script>
-
         const socket = io({
           auth: {
             token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo5OTk5OTksInJvbGUiOiJjcyIsImlhdCI6MTYzODg4NTkwOCwiZXhwIjoxNjQyODA5OTA4fQ.jnfKxpR0fxwdCg-rEqpJc1xIWNiaozEq4a0WkRGK624"
           }
         });
 
-        var online_tickets = [];
+        var form = document.getElementById('formChat');
+        
+        var inputChat = document.getElementById('inputChat');
+        function sendChat() {
+          if(current_chat_user === undefined) {
+            return;
+          }
 
-        socket.on('news', function(msg) {
-          var item = document.createElement('li');
-          item.textContent = msg.msg + " receiverUserId: " + msg.receiverUserId + " sender: " + msg.sender;
-          messages.appendChild(item);
-          window.scrollTo(0, document.body.scrollHeight);
+          
+          if (inputChat.value) {
+            socket.emit('chat', { msg: inputChat.value, receiverUserId: current_chat_user.id });
+            inputChat.value = '';
+          }
+        }
+
+        inputChat.addEventListener("keyup", function(event) {
+          // Number 13 is the "Enter" key on the keyboard
+          if (event.keyCode === 13) {
+            // Cancel the default action, if needed
+            event.preventDefault();
+          }
+        });
+        
+        function selectChatUser(userId, userName) {
+          current_chat_user = {
+            id: userId,
+            name: userName,
+          };
+
+          $("#current_chat_name").text(userName);
+        }
+
+        var online_tickets = [];
+        var current_chat_user;
+
+        socket.on('news', function(msgs) {
+          if(current_chat_user === undefined) {
+            return;
+          }
+
+          console.log("news: " + JSON.stringify(msgs));
+          for (const msg of msgs) {
+            console.log("msg: " + JSON.stringify(msg));
+            console.log("current_chat_user: " + JSON.stringify(current_chat_user));
+            if(current_chat_user.id == msg.receiverUserId) {
+              $("#current_chat_panel").append(`<div class="row no-gutters">
+                <div class="col-md-6">
+                  <div class="chat-bubble chat-bubble--right">
+                    ${msg.msg}
+                  </div>
+                </div>
+              </div>`);
+            } else if(current_chat_user.id == msg.senderId) {
+              $("#current_chat_panel").append(`<div class="row no-gutters">
+                <div class="col-md-6">
+                  <div class="chat-bubble chat-bubble--left">
+                    ${msg.msg}
+                  </div>
+                </div>
+              </div>`);
+            }
+          }
         });
       
         socket.on('old_tickets', function(tickets) {
@@ -134,7 +141,7 @@
           online_tickets = [];
           for (const ticket of tickets) {
             online_tickets.push(ticket.userId);
-            $("#div_user_list").append(`<div class="friend-drawer friend-drawer--onhover">
+            $("#div_user_list").append(`<div class="friend-drawer friend-drawer--onhover" onclick="selectChatUser(${ticket.userId}, '${ticket.userName}')">
             <img class="profile-image" src="https://picsum.photos/100/100?id=1" alt="">
             <div class="text">
               <h6>${ticket.userName}</h6>

@@ -74,10 +74,11 @@ async function main() {
         tickets.set(socketTicket.userId, {
           userId: socketTicket.userId,
           userName: socketTicket.userName,
+
         });
       }   
       var arrayTickets = Array.from(tickets.values());
-      io.to(socket.id).emit('old_tickets', arrayTickets)
+      io.to(socket.id).emit('old_tickets', arrayTickets);
       console.log('old_tickets ' + JSON.stringify(tickets));
     } else {
       socket.join("room_user_" + socket.userId);
