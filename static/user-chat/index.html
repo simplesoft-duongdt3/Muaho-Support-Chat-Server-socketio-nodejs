@@ -40,8 +40,21 @@
     }
   });
 
+  var pingSocketInterval;
+
   socket.on('connect', function() {
     socket.emit('open_chat_session', { name: "Anh Duong DT3" });
+
+    clearInterval(pingSocketInterval);
+    pingSocketInterval = setInterval(function () {
+      console.log("ping");
+      socket.emit('ping');
+    }, 5000);
+  });
+
+  socket.on('disconnect', function() {
+    console.log("disconnect");
+    clearInterval(pingSocketInterval);
   });
 
   socket.on('open_chat_session_success', function(session_chat) {

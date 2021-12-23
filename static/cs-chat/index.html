@@ -107,16 +107,32 @@
         var online_tickets = [];
         var current_chat_user;
 
-        socket.on('news', function(msgs) {
+        var pingSocketInterval;
+
+        socket.on('connect', function() {
+          socket.emit('open_chat_session', { name: "CS" });
+
+          clearInterval(pingSocketInterval);
+          pingSocketInterval = setInterval(function () {
+            console.log("ping");
+            socket.emit('ping');
+          }, 5000);
+        });
+
+        socket.on('disconnect', function() {
+          console.log("disconnect");
+          clearInterval(pingSocketInterval);
+        });
+
+        socket.on('new_chats', function(msgs) {
           if(current_chat_user === undefined) {
             return;
           }
-
-          console.log("news: " + JSON.stringify(msgs));
+          console.log("new_chats: " + JSON.stringify(msgs));
           for (const msg of msgs) {
             console.log("msg: " + JSON.stringify(msg));
             console.log("current_chat_user: " + JSON.stringify(current_chat_user));
-            if(current_chat_user.id == msg.receiverUserId) {
+            if(current_chat_user.id == msg.receiverId) {
               $("#current_chat_panel").append(`<div class="row no-gutters">
                 <div class="col-md-6">
                   <div class="chat-bubble chat-bubble--right">
@@ -136,8 +152,9 @@
           }
         });
       
-        socket.on('old_tickets', function(tickets) {
-          console.log("old_tickets: " + JSON.stringify(tickets))
+        socket.on('open_session_users', function(tickets) {
+          $("#div_user_list").html("");
+          console.log("open_session_users: " + JSON.stringify(tickets))
           online_tickets = [];
           for (const ticket of tickets) {
             online_tickets.push(ticket.userId);
@@ -153,9 +170,9 @@
           } 
         });
       
-        socket.on('add_ticket_user', function(ticket) {
+        socket.on('add_chat_session_user', function(ticket) {
           var index = online_tickets.indexOf(ticket.userId);
-          console.log("add_ticket_user: " + JSON.stringify(ticket) + " index: " + index);
+          console.log("add_chat_session_user: " + JSON.stringify(ticket) + " index: " + index);
 
           
           if(index < 0) {
@@ -172,8 +189,8 @@
           }
         });
       
-        socket.on('remove_ticket_user', function(ticket) {
-          console.log("remove_ticket_user: " + JSON.stringify(ticket))
+        socket.on('remove_chat_session_user', function(ticket) {
+          console.log("remove_chat_session_user: " + JSON.stringify(ticket))
         });
       </script>
 </body>
